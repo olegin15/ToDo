@@ -1,0 +1,122 @@
+﻿@{
+    ViewBag.Title = "Мои задачи";
+}
+
+<h2>@ViewBag.Title.</h2>
+<div class="row">
+    <div class="col-md-12">
+        <div class="form-group">
+            @Html.Label("description", "Задача", new { @class = "col-md-2 control-label" })
+            <div class="col-md-10">
+                @Html.TextBox("description", null, new { @class = "form-control" })
+            </div>
+        </div>
+    </div>
+</div>
+<hr/>
+<div class="row">
+    <div class="col-md-12">
+        <table id="todoes" class="table table-striped table-bordered table-hover">
+            <thead>
+                <tr>
+                    <th>
+                        Задача
+                    </th>
+                    <th>
+                        Дата окончания
+                    </th>
+                    <th>
+                        Выполнено
+                    </th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+</div>
+
+
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render("~/bundles/dataTables/js")
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            var oTable = $('#todoes').dataTable(
+            {
+                displayLength: 25,
+                language: {
+                    url: '@Url.Content("~/scripts/DataTables-1.10.1/ru.txt")'
+                },
+                processing: true,
+                ajax: "@Url.Action("All")",
+                order: [],
+                columnDefs: [
+                    {
+                        targets: 2,
+                        searchable: false,
+                        orderable: false,
+                        render: function (data, type, full) {
+                            if (data == "1") {
+                                return '<input type=\"checkbox\" class=\"isdone\" checked value="' + data + '">';
+                            } else {
+                                return '<input type=\"checkbox\" class=\"isdone\" value="' + data + '">';
+                            }
+                        }
+                    }
+                ],
+                rowCallback: function (row, data) {
+                    $(row).attr("id", data[3]);
+                },
+
+                drawCallback: function () {
+                    $('.isdone').click(function () {
+                        var id = $(this).closest("tr").attr("id");
+                        var checked = this.checked;
+                        if (id) {
+                            $.ajax({
+                                type: "POST",
+                                url: '@Url.Action("EditIsDone")',
+                                data: {
+                                    id: id,
+                                    isDone: checked
+                                },
+                                success: function (data) {
+                                    oTable.api().ajax.reload();
+                                }
+                            });
+                        }
+                        return true;
+                    });
+                },
+                createdRow: function (row, data, index) {
+                    if (data[2] == 1) {
+                        $(row).addClass('strikeout');
+                    }
+
+                    if (data[4]) {
+                        $(row).css('color', data[4]);
+                    }
+                }
+            });
+
+
+            $('#description').keyup(function (e) {
+                if (e.keyCode == 13) {
+                    $.ajax({
+                        type: "POST",
+                        url: '@Url.Action("Add")',
+                        data: {
+                            description: $(this).val()
+                        },
+
+                        success: function (data) {
+                            $('#description').val('');
+                            oTable.api().ajax.reload();
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+}

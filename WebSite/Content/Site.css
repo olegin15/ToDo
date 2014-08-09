@@ -1,0 +1,27 @@
+﻿body {
+    padding-top: 50px;
+    padding-bottom: 20px;
+}
+
+/* Set padding to keep content from hitting the edges */
+.body-content {
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+/* Set width on the form input elements since they're 100% wide by default */
+input,
+select,
+textarea {
+    max-width: 280px;
+}
+
+
+table           { border-collapse:collapse } /* Ensure no space between cells   */
+tr.strikeout td { position:relative        } /* Setup a new coordinate system   */
+tr.strikeout td:before {                     /* Create a new element that       */
+  content: " ";                              /* …has no text content            */
+  position: absolute;                        /* …is absolutely positioned       */
+  left: 0; top: 50%; width: 100%;            /* …with the top across the middle */
+  border-bottom: 1px solid #000;             /* …and with a border on the top   */
+}
